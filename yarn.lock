@@ -904,6 +904,14 @@
     ora "5.4.1"
     undici "6.20.1"
 
+"@nestjs/microservices@^12.2.0":
+  version "12.2.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/microservices/-/microservices-12.2.0.tgz#44d9cee0591c69ae0af288e7f1f25c2d769f02ec"
+  integrity sha512-xLb8olEhH0/7sluke2FlR5HasULV7LwGn/5JMTW+TW5QZsqmO9KGkR2sIHKWi54cHBFIe9XdrbG7n5ezttMSAQ==
+  dependencies:
+    iterare "1.2.1"
+    tslib "2.8.1"
+
 "@nestjs/platform-express@^12.0.1":
   version "12.2.0"
   resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-12.2.0.tgz#30f05e78e5c910aafc0cbc0ebb72e67ff2cb81a8"
