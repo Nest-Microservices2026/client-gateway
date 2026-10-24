@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { PRODUCT_SERVICE } from '../config';
 import { ClientProxy } from '@nestjs/microservices';
 import { PaginationDto } from '../common/dto';
+import { firstValueFrom } from 'rxjs';
 
 
 @Controller('products')
@@ -23,19 +24,31 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.productsClient.send({ cmd: 'find_one_product' }, {id:id});
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+
+    try {
+
+      const product = await firstValueFrom(
+        this.productsClient.send({ cmd: 'find_one_product' }, { id: id })
+      );
+
+      return product;
+
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+
   }
 
   @Delete(':id')
   deleteProduct(@Param('id', ParseIntPipe) id: number) {
-    return 'This is a Soft Delete'
+    return 'This is a Soft Delete';
   }
 
   @Patch(':id')
   patchProduct(
     @Param(':id', ParseIntPipe)
     @Body() body: any) {
-    return 'This is the patch method'
+    return 'This is the patch method';
   }
 }
