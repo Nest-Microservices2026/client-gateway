@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { PRODUCT_SERVICE } from '../config';
-import { ClientProxy } from '@nestjs/microservices';
-import { PaginationDto } from '../common/dto';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { PaginationDto } from '../common';
 import { firstValueFrom } from 'rxjs';
 
 
@@ -27,7 +27,8 @@ export class ProductsController {
   async findOne(@Param('id', ParseIntPipe) id: number) {
 
     try {
-
+      //firstValueFrom: Converts that Observable into a Promise for clean `await` 
+      //when you expect one response.
       const product = await firstValueFrom(
         this.productsClient.send({ cmd: 'find_one_product' }, { id: id })
       );
@@ -35,7 +36,7 @@ export class ProductsController {
       return product;
 
     } catch (error) {
-      throw new BadRequestException(error);
+      throw new RpcException({error});
     }
 
   }
@@ -47,7 +48,7 @@ export class ProductsController {
 
   @Patch(':id')
   patchProduct(
-    @Param(':id', ParseIntPipe)
+    @Param('id', ParseIntPipe)
     @Body() body: any) {
     return 'This is the patch method';
   }
