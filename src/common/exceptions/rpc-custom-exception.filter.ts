@@ -1,12 +1,26 @@
 
-import { Catch, RpcExceptionFilter, ArgumentsHost, UnauthorizedException } from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
+import { Catch, ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
+type RpcErrorBody = {
+    status: number | string;
+    message: string;
+}
 @Catch(RpcException)
-export class RcpCustomExceptionFilter implements RpcExceptionFilter<RpcException> {
-    catch(exception: RpcException, host: ArgumentsHost): Observable<any> {
-        console.log('It passed by rcp-custome-exception-filter file');
-        throw new UnauthorizedException('This is a test that the filter is working')
+export class RcpCustomExceptionFilter implements ExceptionFilter {
+    catch(exception: RpcException, host: ArgumentsHost) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+
+        const rpcError = exception.getError() as RpcErrorBody;
+
+        if (typeof rpcError === 'object' && 'status' in rpcError && 'message' in rpcError) {
+            const status = isNaN(+rpcError.status) ? 400 : rpcError.status;
+            return response.status(status).json(rpcError);
+        }
+        response.status(400).json({
+            status: 400,
+            message: rpcError
+        });
     }
 }
