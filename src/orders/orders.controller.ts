@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe } from '@nestjs/common';
 import { ORDER_SERVICE } from '../config';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { firstValueFrom } from 'rxjs';
 
 
 @Controller('orders')
@@ -22,8 +23,15 @@ export class OrdersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersClient.send("findOneOrder", { id });
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      const order = await firstValueFrom(
+        this.ordersClient.send("findOneOrder", { id })
+      )
+      return order;
+    } catch (error) {
+      throw new RpcException(error as Error);
+    }
   }
 
 }
